@@ -1,6 +1,6 @@
-# Sales Management System - Master-Slave PostgreSQL Implementation
+# Master-Slave PostgreSQL Implementation with RisingWave
 
-This repository provides a comprehensive implementation of a **Sales Management System** using **PostgreSQL master-slave replication** with **Change Data Capture (CDC)** and **RisingWave**. The system demonstrates real-world clean architecture patterns with a modern **Streamlit** dashboard for data management and analytics.
+This repository demonstrates a complete **PostgreSQL master-slave replication** implementation using **Change Data Capture (CDC)** and **RisingWave**. The project showcases real-world database architecture patterns with a practical example using a sales data scenario, featuring a **Streamlit** dashboard for demonstrating read/write operation separation and real-time data analytics.
 
 ## 🏗️ Architecture Overview
 
@@ -8,24 +8,16 @@ This repository provides a comprehensive implementation of a **Sales Management 
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Streamlit Dashboard                          │
 │  ┌─────────────────────┐  ┌─────────────────────────────────┐   │
-│  │   Data Management   │  │     Analytics Dashboard        │   │
-│  │   (CRUD Operations) │  │     (Real-time Reports)        │   │
+│  │   Write Operations  │  │     Read Operations             │   │
+│  │   (Master DB)       │  │     (Slave DB)                 │   │
 │  └─────────────────────┘  └─────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Services Layer                              │
+│                Application Layer (Clean Architecture)           │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │  Sales Service (Business Logic)                            │ │
-│  └─────────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Repository Layer                              │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │  Sales Repository (Data Access)                            │ │
+│  │  Business Logic & Connection Management                    │ │
 │  └─────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
                               │
@@ -34,87 +26,84 @@ This repository provides a comprehensive implementation of a **Sales Management 
 │                   Database Layer                                │
 │  ┌──────────────────────┐    ┌──────────────────────────────┐   │
 │  │   Master Database    │    │      Slave Database          │   │
-│  │   (Write Operations) │◄──►│    (Read Operations)         │   │
+│  │   (Write Operations) │───►│    (Read Operations)         │   │
 │  │   - INSERT           │    │    - SELECT                  │   │
 │  │   - UPDATE           │    │    - Analytics Queries       │   │
-│  │   - DELETE           │    │                              │   │
+│  │   - DELETE           │    │    - Dashboard Data          │   │
+│  │   Port: 5676         │    │    Port: 5677                │   │
 │  └──────────────────────┘    └──────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     RisingWave & CDC                            │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │  Real-time Data Processing & Change Data Capture           │ │
+│  └─────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## 🚀 Features
 
-### Core Features
+### Core Database Features
 
-- **Master-Slave Database Pattern**: Write operations go to master, read operations from slave
-- **Clean Architecture**: Separation of concerns with proper layering
-- **Real-time Analytics**: Live dashboard with sales metrics and trends
-- **CRUD Operations**: Complete Create, Read, Update, Delete functionality
-- **Data Validation**: Comprehensive input validation and error handling
-- **Sample Data Generation**: Built-in fake data generator for testing
+- **Master-Slave PostgreSQL Pattern**: Demonstrates proper separation of write and read operations
+- **Change Data Capture (CDC)**: Real-time data synchronization using Debezium
+- **RisingWave Integration**: Stream processing for real-time analytics
+- **Connection Pooling**: Efficient database connection management
+- **Clean Architecture**: Proper separation of concerns and layered design
+- **Docker Containerization**: Easy deployment with Docker Compose
 
-### Dashboard Features
+### Demo Application Features
 
-- **📊 Data Management Interface**
+- **📊 Write Operations Interface**
 
-  - View transactions and sales items
-  - Add new transactions with multiple items
-  - Edit existing transactions and items
-  - Delete operations with confirmation
+  - Create transactions and items (routed to Master DB)
+  - Update existing records (routed to Master DB)
+  - Delete operations with confirmation (routed to Master DB)
+  - Input validation and error handling
+
+- **📈 Read Operations Interface**
+  - View transactions and analytics (routed to Slave DB)
+  - Real-time dashboard with metrics
+  - Interactive charts and visualizations
   - Paginated data display
 
-- **📈 Analytics Dashboard**
-  - Key performance metrics (revenue, transactions, items sold)
-  - Sales trend charts (daily revenue over time)
-  - Top products analysis
-  - Recent transactions overview
-  - Interactive Plotly charts
+### Technical Implementation
 
-### Technical Features
-
-- **Containerized Database**: Docker setup for PostgreSQL master-slave
-- **Connection Pooling**: Efficient database connection management
-- **Error Handling**: Comprehensive error handling and logging
+- **Database Separation**: Clear write/read operation routing
 - **Environment Configuration**: Flexible configuration via environment variables
+- **Error Handling**: Comprehensive error handling and recovery
 - **Type Safety**: Pydantic models for data validation
+- **Sample Data Generation**: Built-in data generator for testing replication
 
 ## 📦 Project Structure
 
 ```
-src/
-├── config/
-│   ├── __init__.py
-│   └── settings.py           # Application configuration
-├── database/
-│   ├── __init__.py
-│   └── manager.py            # Database connection manager
-├── models/
-│   ├── __init__.py
-│   └── sales.py              # Pydantic data models
-├── repositories/
-│   ├── __init__.py
-│   ├── interfaces.py         # Repository interfaces
-│   └── sales_repository.py   # Sales data access layer
-├── services/
-│   ├── __init__.py
-│   └── sales_service.py      # Business logic layer
-├── streamlit_app/
-│   ├── .streamlit/
-│   │   └── config.toml       # Streamlit configuration
-│   └── main.py               # Streamlit dashboard
-├── utils/
-│   ├── __init__.py
-│   ├── helpers.py            # Utility functions
-│   └── sample_data.py        # Sample data generator
-├── main.py                   # Application entry point
-└── requirements.txt          # Python dependencies
+├── docker-compose.yml        # Docker services configuration
+├── .env                      # Environment variables
+├── README.md                 # Project documentation
+├── USAGE.md                  # Quick usage guide
+├── setup.py                  # Automated setup script
+└── src/
+    ├── main.py              # Complete Streamlit application (master-slave demo)
+    ├── run.py               # Application runner script
+    ├── requirements.txt     # Python dependencies
+    └── __init__.py          # Package initialization
 ```
+
+### Key Files
+
+- **`main.py`**: Complete implementation demonstrating master-slave pattern
+- **`run.py`**: Simple runner script for starting the Streamlit application
+- **`docker-compose.yml`**: PostgreSQL master-slave setup with RisingWave
+- **`.env`**: Database connection configurations
 
 ## 🗄️ Database Schema
 
-The system uses two main tables for sales transaction management:
+The demo uses a simple transaction-based schema to demonstrate master-slave operations:
 
-### Sales Transaction Table
+### Sales Transaction Table (Master DB - Writes)
 
 ```sql
 CREATE TABLE sales_transaction (
@@ -130,7 +119,7 @@ CREATE TABLE sales_transaction (
 );
 ```
 
-### Sales Item Table
+### Sales Item Table (Master DB - Writes)
 
 ```sql
 CREATE TABLE sales_item (
@@ -145,6 +134,12 @@ CREATE TABLE sales_item (
     total_price NUMERIC(12, 2) NOT NULL
 );
 ```
+
+### Database Operations Flow
+
+- **Master Database (Port 5676)**: All INSERT, UPDATE, DELETE operations
+- **Slave Database (Port 5677)**: All SELECT operations for analytics and reporting
+- **CDC**: Changes automatically replicated from master to slave
 
 ## ⚙️ Installation & Setup
 
@@ -165,11 +160,11 @@ This single command will:
 - ✅ Check Docker installation
 - ✅ Start PostgreSQL master-slave databases
 - ✅ Install Python dependencies
-- ✅ Launch the Streamlit application
+- ✅ Launch the Streamlit application demonstrating master-slave operations
 
 ---
 
-## ⚡ Quick Start (Simple Way)
+## ⚡ Quick Start (Recommended Method)
 
 ### Prerequisites
 
@@ -190,17 +185,18 @@ This single command will:
    cd src
    ```
 
-3. **Run the Application**
+3. **Run the Demo Application**
 
    ```bash
    python run.py
    ```
 
-   The script will:
+   The `run.py` script will:
 
-   - Automatically check and install missing dependencies
-   - Initialize the database tables
-   - Start the Streamlit application at `http://localhost:8501`
+   - ✅ Automatically check and install missing dependencies
+   - ✅ Initialize the database tables on both master and slave
+   - ✅ Start the Streamlit application at `http://localhost:8501`
+   - ✅ Open your browser automatically to the demo interface
 
 ### Alternative Direct Method
 
@@ -265,32 +261,6 @@ The system automatically routes:
 - **Write operations** (INSERT, UPDATE, DELETE) → Master Database
 - **Read operations** (SELECT, Analytics) → Slave Database
 
-## 🔍 Key Components
-
-### Database Manager (`database/manager.py`)
-
-- Manages connection pools for master and slave databases
-- Provides context managers for safe connection handling
-- Implements read/write operation routing
-
-### Sales Service (`services/sales_service.py`)
-
-- Contains business logic for sales operations
-- Handles transaction calculations and validations
-- Provides high-level API for the presentation layer
-
-### Sales Repository (`repositories/sales_repository.py`)
-
-- Implements data access patterns
-- Executes SQL queries with proper parameter binding
-- Handles database-specific operations
-
-### Streamlit Dashboard (`streamlit_app/main.py`)
-
-- Modern web interface for data management
-- Interactive charts and visualizations
-- Real-time data updates and form handling
-
 ## 🧪 Testing with Sample Data
 
 The system includes a built-in sample data generator that creates realistic sales transactions:
@@ -322,6 +292,47 @@ The `docker-compose.yml` includes:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+
+## 🎯 Learning Objectives
+
+This implementation demonstrates:
+
+- **Master-Slave Database Architecture**: Proper separation of read and write operations
+- **Change Data Capture (CDC)**: Real-time data synchronization patterns
+- **RisingWave Integration**: Stream processing for real-time analytics
+- **Clean Code Architecture**: Proper layering and separation of concerns
+- **Docker Containerization**: Production-ready deployment patterns
+- **Connection Management**: Efficient database connection pooling
+- **Error Handling**: Robust error handling and recovery mechanisms
+
+## � Key Implementation Details
+
+### Database Routing Logic
+
+```python
+# Write operations (INSERT, UPDATE, DELETE) → Master DB
+def execute_write_query(self, query: str, params: Optional[tuple] = None):
+    with self.get_master_connection() as conn:
+        # All write operations go to master database (port 5676)
+
+# Read operations (SELECT) → Slave DB
+def execute_read_query(self, query: str, params: Optional[tuple] = None):
+    with self.get_slave_connection() as conn:
+        # All read operations go to slave database (port 5677)
+```
+
+### Connection Pool Configuration
+
+- **Master DB (Port 5676)**: Optimized for write operations with transaction support
+- **Slave DB (Port 5677)**: Optimized for read operations with autocommit enabled
+- **Connection Pooling**: SimpleConnectionPool for efficient resource management
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
@@ -329,14 +340,6 @@ The `docker-compose.yml` includes:
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the troubleshooting section below
-2. Open an issue on GitHub
-3. Review the logs in `app.log`
 
 ## 🔧 Troubleshooting
 
@@ -347,26 +350,35 @@ If you encounter any issues or have questions:
 docker-compose ps
 
 # Restart database services
-./run.sh stop
-./run.sh docker
+docker-compose up -d postgres-master postgres-slave
 
 # Check database logs
 docker-compose logs postgres-master
 docker-compose logs postgres-slave
 ```
 
-### Python Dependencies Issues
+### Application Issues
 
 ```bash
-# Recreate virtual environment
-./run.sh clean
-./run.sh setup
+# Navigate to src directory and run directly
+cd src
+python run.py
+
+# Or run Streamlit manually
+cd src
+streamlit run main.py --server.port 8501
 ```
 
 ### Port Conflicts
 
-If ports 5676, 5677, or 8501 are in use, modify the `.env` file or `docker-compose.yml` accordingly.
+If ports 5676, 5677, or 8501 are in use, modify the `.env` file accordingly:
+
+```bash
+# Edit .env file
+MASTER_DB_PORT=5676  # Change if needed
+SLAVE_DB_PORT=5677   # Change if needed
+```
 
 ---
 
-**Built with ❤️ using Python, PostgreSQL, Streamlit, and Docker**
+**Built with ❤️ for demonstrating PostgreSQL Master-Slave Architecture with RisingWave**
