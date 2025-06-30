@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-Sales Management System - Complete Streamlit Application
 Master-Slave PostgreSQL Implementation with Real-time Dashboard
 
-This is a complete sales management system that demonstrates:
+This is a complete master-slave PostgreSQL implementation that demonstrates:
 - Master-Slave PostgreSQL pattern
 - Clean Architecture with proper layering
 - Real-time analytics dashboard
@@ -558,7 +557,7 @@ def format_number(number: int) -> str:
 
 # Page configuration
 st.set_page_config(
-    page_title="Sales Management System",
+    page_title="Mater Slave PostgreSQL",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -597,7 +596,7 @@ def get_sales_service():
 
 def main():
     """Main Streamlit application"""
-    st.title("📊 Sales Management System")
+    st.title("📊 Master Slave Postgres")
     st.markdown("**Master-Slave PostgreSQL Implementation with Real-time Analytics**")
     
     # Initialize services

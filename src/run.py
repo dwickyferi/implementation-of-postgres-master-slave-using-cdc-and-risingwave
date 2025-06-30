@@ -66,7 +66,7 @@ def run_streamlit():
 
 def main():
     print("=" * 50)
-    print("Sales Management System - Master-Slave PostgreSQL")
+    print("Master-Slave PostgreSQL")
     print("=" * 50)
     
     # Check dependencies
